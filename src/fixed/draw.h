@@ -912,8 +912,9 @@ void drawFPS()
     }
 #endif
 
-    if (!gSettings.video_fps)
+    if (!gSettings.video_fps){
         return;
+    }
 
     char buf[32];
     int2str(fps, buf);

@@ -164,7 +164,12 @@ extern "C" void sec_dma1_handler()
 
 int main()
 {
-    while ((MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0);
+    while (
+        (MARS_SYS_INTMSK & MARS_SH2_ACCESS_VDP) == 0
+    ){
+
+    }
+
     MARS_VDP_DISPMODE = MARS_224_LINES | MARS_VDP_MODE_256;
 
     for (int32 page = 0; page < 2; page++)

@@ -918,7 +918,8 @@ void drawFPS()
 
     char buf[32];
     int2str(fps, buf);
-    drawText(2, 16, buf, TEXT_ALIGN_LEFT);
+    //drawText(2, 16, buf, TEXT_ALIGN_LEFT);
+    drawText(2, 16, buf, TEXT_ALIGN_CENTER);
 }
 
 #ifdef PROFILING

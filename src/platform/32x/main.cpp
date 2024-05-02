@@ -222,8 +222,10 @@ int main()
 
         int32 delta = frame - lastFrame;
 
-        if (!delta)
-            continue;
+        // ここで進行停止になるので、いったんコメントアウト
+        //if (!delta){
+        //    continue;
+        //}
 
         lastFrame = frame;
 

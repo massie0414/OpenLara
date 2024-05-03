@@ -1,7 +1,9 @@
 const void* TRACKS_IMA;
 const void* TITLE_SCR;
 
+extern void* GYM_PKD;
 extern void* LEVEL1_PKD;
+extern void* LEVEL2_PKD;
 
 #include "game.h"
 
@@ -91,7 +93,12 @@ const void* osLoadScreen(LevelID id)
 
 const void* osLoadLevel(LevelID id)
 {
-    return (void*)LEVEL1_PKD; // TODO
+    switch ( id ){
+        case LVL_TR1_GYM: return (void*)GYM_PKD;
+        case LVL_TR1_1: return (void*)LEVEL1_PKD;
+        case LVL_TR1_2: return (void*)LEVEL2_PKD;
+        default: return (void*)LEVEL1_PKD; // TODO
+    }
 }
 
 uint16 pageIndex = 0;

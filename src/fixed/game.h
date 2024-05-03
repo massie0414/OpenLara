@@ -287,7 +287,9 @@ void gameUpdate(int32 frames)
         lara->updateInput();
         inventory.update(frames);
 
-        if ((inventory.page != INV_PAGE_TITLE) && (inventory.state == INV_STATE_NONE))
+        if ((inventory.page != INV_PAGE_TITLE) 
+        && (inventory.state == INV_STATE_NONE)
+        )
         {
             if (lara->useItem(inventory.useSlot)) {
                 inventory.useSlot = SLOT_MAX;
@@ -295,7 +297,10 @@ void gameUpdate(int32 frames)
         }
     }
 
-    if ((inventory.page != INV_PAGE_TITLE) && (inventory.state == INV_STATE_NONE) && (gNextLevel == LVL_MAX))
+    if ((inventory.page != INV_PAGE_TITLE) 
+    && (inventory.state == INV_STATE_NONE) 
+    && (gNextLevel == LVL_MAX)
+    )
     {
         for (int32 i = 0; i < frames; i++)
         {
@@ -304,7 +309,9 @@ void gameUpdate(int32 frames)
         updateLevel(frames);
     }
 
-    if ((gNextLevel != LVL_MAX) && (inventory.state == INV_STATE_NONE))
+    if ((gNextLevel != LVL_MAX)
+     && (inventory.state == INV_STATE_NONE)
+     )
     {
         gLevelID = gNextLevel;
         gNextLevel = LVL_MAX;

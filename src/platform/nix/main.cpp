@@ -13,6 +13,7 @@
 #include <pulse/simple.h>
 
 #include "game.h"
+#include "cmdline.h"
 
 #define WND_TITLE       "OpenLara"
 
@@ -329,6 +330,10 @@ void addDir(char* path)
 {
     char* fileName;
     struct dirent* e;
+    struct stat s;
+    char origPath[1024];
+
+    strcpy(origPath, path);
     DIR* dir = opendir(path);
 
     int32 pathLen = strlen(path);
@@ -336,7 +341,25 @@ void addDir(char* path)
 
     while ((e = readdir(dir)))
     {
+        bool isDir = false;
         if (e->d_type == DT_DIR)
+        {
+            isDir = true;
+        }
+        else if (e->d_type == DT_LNK)
+        {
+            char filepath[1024];
+            snprintf(filepath, 1024, "%s/%s", origPath, e->d_name);
+            if (stat(filepath, &s) == 0)
+            {
+                if (S_ISDIR(s.st_mode))
+                {
+                    isDir = true;
+                }
+            }
+        }
+
+        if (isDir)
         {
             if (e->d_name[0] != '.')
             {
@@ -459,6 +482,7 @@ int checkLanguage() {
     if (id == TWOCC("zh")) return STR_LANG_CN - STR_LANG_EN;
     if (id == TWOCC("hu")) return STR_LANG_HU - STR_LANG_EN;
     if (id == TWOCC("sv")) return STR_LANG_SV - STR_LANG_EN;
+    if (id == TWOCC("ko")) return STR_LANG_KO - STR_LANG_EN;
 
     return 0;
 }
@@ -498,8 +522,12 @@ int main(int argc, char **argv) {
                       ButtonPressMask | ButtonReleaseMask |
                       ButtonMotionMask | PointerMotionMask;
 
+    unsigned int wnd_width = 1280;
+    unsigned int wnd_height = 720;
+    argWindowSize(argc, argv, &wnd_width, &wnd_height);
+
     Window wnd = XCreateWindow(dpy, RootWindow(dpy, vis->screen),
-                               0, 0, 1280, 720, 0,
+                               0, 0, wnd_width, wnd_height, 0,
                                vis->depth, InputOutput, vis->visual,
                                CWColormap | CWBorderPixel | CWEventMask, &attr);
     XStoreName(dpy, wnd, WND_TITLE);
@@ -511,6 +539,8 @@ int main(int argc, char **argv) {
     Atom WM_DELETE_WINDOW = XInternAtom(dpy, "WM_DELETE_WINDOW", 0);
     XSetWMProtocols(dpy, wnd, &WM_DELETE_WINDOW, 1);
 
+    if (argFullscreen(argc, argv)) toggle_fullscreen(dpy, wnd);
+
     timeval t;
     gettimeofday(&t, NULL);
     startTime = t.tv_sec;
@@ -521,7 +551,9 @@ int main(int argc, char **argv) {
 
     joyInit();
     sndInit();
-    Game::init(argc > 1 ? argv[1] : NULL);
+
+    int levelNameArg = argLevelName(argc, argv);
+    Game::init(levelNameArg > 0 ? argv[levelNameArg] : NULL);
 
     while (!Core::isQuit) {
         if (XPending(dpy)) {

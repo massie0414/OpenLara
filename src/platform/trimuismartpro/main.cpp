@@ -489,7 +489,6 @@ void print_help(int argc, char **argv) {
            argc ? argv[0] : "OpenLara");
     puts("-d [DIRECTORY]  directory where data files are");
     puts("-l [FILE]       load a specific level file");
-    puts("-f              start in fullscreen mode (desktop GL)");
     puts("-h              print this help");
 }
 
@@ -499,7 +498,7 @@ int main(int argc, char **argv) {
     char *lvlName = nullptr;
 
     int option;
-    while ((option = getopt(argc, argv, "hl:d:f")) != -1) {
+    while ((option = getopt(argc, argv, "hl:d:")) != -1) {
         switch(option) {
             case 'h':
                 print_help(argc, argv);
@@ -509,9 +508,6 @@ int main(int argc, char **argv) {
                break;
             case 'd':
                strncpy(contentDir, optarg, 254);
-               break;
-            case 'f':
-               fullscreen = true;
                break;
             case ':':
                 printf("option %c needs a value\n", optopt);
@@ -550,21 +546,14 @@ int main(int argc, char **argv) {
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-    /* In desktop GL, start in fullscreen when instructed to do so. */
-    /* In GLES, always start in fullscreen mode using the video mode currently in use. */
-#ifdef _GAPI_GLES
+    /* In GLES, start in fullscreen mode using the vide mode currently in use. */
     sdl_window = SDL_CreateWindow(WND_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        sdl_displaymode.w, sdl_displaymode.h, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN_DESKTOP);
+#ifdef _GAPI_GLES
+        sdl_displaymode.w, sdl_displaymode.h, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN_DESKTOP
 #else
-    if (fullscreen) {
-        sdl_window = SDL_CreateWindow(WND_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-            sdl_displaymode.w, sdl_displaymode.h, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN_DESKTOP);
-    }
-    else {
-        sdl_window = SDL_CreateWindow(WND_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-            WIN_W, WIN_H, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-    }
+        WIN_W, WIN_H, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN
 #endif
+    ); 
  
     // We try to use the current video mode, but we inform the core of whatever mode SDL2 gave us in the end. 
     SDL_GetWindowSize(sdl_window, &w, &h);

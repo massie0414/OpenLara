@@ -659,9 +659,26 @@ struct Inventory
         return item.str;
     }
 
+    int32 getModelType(InvSlot slot) const
+    {
+        int32 type = INV_SLOTS[slot].type;
+#ifdef __32X__
+        // The bundled level packs omit the title-only Home model. Use the
+        // map instead of reading mesh/animation zero from an empty Model.
+        if (slot == SLOT_HOME && level.models[type].count <= 0)
+        {
+            type = ITEM_INV_MAP;
+        }
+#endif
+        return type;
+    }
+
     int32 getAnimLength()
     {
-        int32 type = INV_SLOTS[itemsList[itemIndex]].type;
+        int32 type = getModelType(itemsList[itemIndex]);
+
+        if (level.models[type].count <= 0)
+            return 0;
 
         // HACK! override max animation length
         if (type == ITEM_INV_PASSPORT)
@@ -1369,7 +1386,7 @@ struct Inventory
 
     void drawSlot(InvSlot slot)
     {
-        int32 type = INV_SLOTS[slot].type;
+        int32 type = getModelType(slot);
 
         bool current = itemsList[itemIndex] == slot;
         bool selected = current && ((state == INV_STATE_SHOW) || (frameTarget != frameIndex));
@@ -1377,6 +1394,9 @@ struct Inventory
         if ((type == ITEM_INV_PASSPORT) && !selected) {
             type = ITEM_INV_PASSPORT_CLOSED;
         }
+
+        if (level.models[type].count <= 0)
+            return;
 
         ItemObj item;
         memset(&item, 0, sizeof(item));
